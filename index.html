@@ -18,8 +18,9 @@
 	var camera, scene, renderer;
 	var sphere;
 	var cones = [];
-	var coneCount = 500;
-		
+	var coneCount = 50;
+	var player;
+
 	init();
 	animate();
 
@@ -28,15 +29,13 @@
 		scene = new THREE.Scene();
 
 		camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
-		camera.position.z = 2;
+		camera.position.z = 1;
 
 		var sphereGeom = new THREE.SphereGeometry(1, 30	 ,30);
-		sphere = new THREE.Mesh(sphereGeom, new THREE.MeshBasicMaterial( { color: 0x00ffaa, wireframe: true } ));
-		scene.add(sphere)
+		sphere = new THREE.Mesh(sphereGeom, new THREE.MeshBasicMaterial( { color: 0x00ffaa, wireframe: true} ));
+		scene.add(sphere);
 
-
-
-		var coneGeom = new THREE.SphereGeometry(0.05, 4, 4);//CylinderGeometry(0, 0.1, 0.3);
+		var coneGeom = new THREE.SphereGeometry(0.05, 6, 6);//CylinderGeometry(0, 0.1, 0.3);
 		//coneGeom.applyMatrix( new THREE.Matrix4().makeRotationFromEuler( new THREE.Euler( Math.PI / 2, Math.PI, 0 ) ) )
 
 		for(var i = 0; i < coneCount; i++){
@@ -53,8 +52,36 @@
 		renderer.setPixelRatio( window.devicePixelRatio );
 		renderer.setSize( window.innerWidth, window.innerHeight );
 		document.body.appendChild( renderer.domElement );
+
+		document.addEventListener("keydown", keydown, false);
 		
 
+	}
+
+	function keydown(e){
+		if (e.keyCode == 65) { // left
+			camera.quaternion.multiply(new THREE.Quaternion(0, Math.sin(-0.01), 0, Math.cos(-0.01)));
+		}
+
+		if (e.keyCode == 68) { // right
+			camera.quaternion.multiply(new THREE.Quaternion(0, Math.sin(0.01), 0, Math.cos(0.01)));
+		}
+
+		if (e.keyCode == 83) { // up
+			camera.quaternion.multiply(new THREE.Quaternion(Math.sin(-0.01), 0, 0, Math.cos(-0.01)));
+		}
+
+		if (e.keyCode == 87) { // down
+			camera.quaternion.multiply(new THREE.Quaternion(Math.sin(0.01), 0, 0, Math.cos(0.01)));
+		}
+
+		var qx = camera.quaternion.x;
+		var qy = camera.quaternion.y;
+		var qz = camera.quaternion.z;
+		var qw = camera.quaternion.w;
+		camera.position.x = 2 * (qy * qw + qz * qx);
+		camera.position.y = 2 * (qz * qy - qw * qx);
+		camera.position.z = ((qz * qz + qw * qw) - (qx * qx + qy * qy));
 	}
 
 	//TODO make spherical to cartesian 
@@ -74,17 +101,18 @@
 	 *  phi = 2*arcsin(sqrt(random()))
 	 */
 
-	function randomSpherePoint(){
-		var theta = (Math.random() * 2 * Math.PI) - Math.PI;
-		var phi = 2 * Math.asin(Math.sqrt(Math.random()));
-		return(new THREE.Vector3(1, theta, phi))
-	}
+	 function randomSpherePoint(){
+	 	var theta = (Math.random() * 2 * Math.PI) - Math.PI;
+	 	var phi = 2 * Math.asin(Math.sqrt(Math.random()));
+	 	return(new THREE.Vector3(1, theta, phi))
+	 }
 
-	function animate() {
+	 function animate() {
 
-		requestAnimationFrame( animate );
-
-		camera.lookAt(scene.position);
+	 	requestAnimationFrame( animate );
+		//player.rotateOnAxis(new THREE.Vector3(0.1, 1, -0.5), 0.01)
+		
+		//camera.lookAt(scene.position);
 		render();
 
 	}
